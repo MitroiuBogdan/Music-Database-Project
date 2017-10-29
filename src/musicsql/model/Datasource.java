@@ -8,6 +8,7 @@ package musicsql.model;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -173,7 +174,22 @@ public class Datasource {
     
     
     }  
-       
+    public void querySongsMetadate(){
+        String sb="select * from "+TABLE_SONGS;
+        try(Statement statement=conn.createStatement();
+            ResultSet result=statement.executeQuery(sb.toString())){
+            
+            ResultSetMetaData meta=result.getMetaData();
+            int numColums=meta.getColumnCount();
+            
+            for(int i=1;i<numColums+1;i++){
+                System.out.println(i+" "+meta.getColumnName(i).toString());}
+            
+            
+        
+        }catch(SQLException e){
+            e.printStackTrace();}
+    }   
 
        
        }

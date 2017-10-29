@@ -23,19 +23,9 @@ public class MusicSQL {
             System.out.println("Cant Open Datasource!");
             return;}
         
+        dataSource.querySongsMetadate();
         
-        /*List<Artist>artists=dataSource.queryArtists(1);
-        if(artists==null){
-            System.out.println("No artists!");}
-        else{
-        artists.stream()
-                .map((x)->x.getId()+" "+x.getName())
-                .forEach(System.out::println);}
-        */
-        List<String>album=dataSource.queryAlbumForArtists("Elf",Datasource.ORDER_BY_ASC);
-        List<String>songs=dataSource.queryArtistsForSongs("Elf");
-            songs.forEach(System.out::println);
-        //album.forEach(System.out::println);
+        
         
         dataSource.close();
         
