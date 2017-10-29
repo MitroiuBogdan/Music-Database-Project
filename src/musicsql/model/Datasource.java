@@ -7,12 +7,14 @@ package musicsql.model;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import jdk.nashorn.internal.runtime.regexp.joni.constants.CCVALTYPE;
 
 /**
  *
@@ -52,18 +54,26 @@ public class Datasource {
     public static final int      ORDER_BY_ASC=2;
     public static final int      ORDER_BY_DESC=3;  
     
-    private static final String  QUERY_SONGS_BY_ARTIST="select "+TABLE_SONGS+"."+COLOMN_SONG_TITLE+" from "+TABLE_SONGS+" inner join "+
+    private static final String  QUERY_SONGS_BY_ARTIST="select "+TABLE_SONGS+"."+COLUMN_SONG_TRACK
+            +" from "+TABLE_SONGS+" inner join "+
                                                         TABLE_ALBUMS+" on "+TABLE_ALBUMS+"."+COLUMN_ALBUM_ID+"="+TABLE_SONGS+"."+COLUMN_SONG_ALBUM+" inner join "+
                                                         TABLE_ARTISTS+" on "+TABLE_ARTISTS+"."+COLUMN_ARTIST_ID+"="+TABLE_ALBUMS+"."+COLUMN_ALBUM_ARTIST+
                                                         " where "+TABLE_ARTISTS+"."+COLUMN_ARTIST_NAME+
                                                         "=\"";
-    
+    private static final String TABLE_SONG_VIEW="song_list2";
+    private static final String  CREATR_VIEW_SONGS="create view if not exists "+TABLE_SONG_VIEW+" as select "+TABLE_SONGS+"."+COLOMN_SONG_TITLE+" from "+TABLE_SONGS;
+    private static final String  QUERY_SONG_INFO=" select "+TABLE_ARTISTS+"."+COLUMN_ARTIST_NAME+" , "+TABLE_ALBUMS+"."+COLUMN_ALBUM_ARTIST+" from "+
+                                                            TABLE_ARTISTS+" inner join "+TABLE_ALBUMS+" on "+TABLE_ARTISTS+"."+COLUMN_ARTIST_ID+"="+TABLE_ALBUMS+"."+
+                                                            COLUMN_ALBUM_ARTIST+" inner join "+TABLE_SONGS+" on "+TABLE_SONGS+"."+COLUMN_SONG_ALBUM+"="+TABLE_ALBUMS+"."
+                                                            +COLUMN_ALBUM_ID+" where "+TABLE_SONGS+"."+COLOMN_SONG_TITLE+" =?";
     
     private Connection conn;
+    private PreparedStatement querySongInfo;
     
     public boolean open(){
      try {
          this.conn=DriverManager.getConnection(CONNECTION_STRING);
+         this.querySongInfo=conn.prepareStatement(QUERY_SONG_INFO);
          System.out.println("Database has been opened succesfully!");
          return true;
          
@@ -76,6 +86,7 @@ public class Datasource {
     public void close(){
         try{
             if(conn!=null){
+                querySongInfo.close();
                 conn.close();
                 System.out.println("Database has been closed succesfully!");}
            }catch(SQLException e){
@@ -190,9 +201,58 @@ public class Datasource {
         }catch(SQLException e){
             e.printStackTrace();}
     }   
-
-       
-       }
+    public int getCount(String table){
+        StringBuilder sb=new StringBuilder();
+        sb.append("select count(*) as count from "+table);
+        
+        try(Statement statement=conn.createStatement();
+               ResultSet result=statement.executeQuery(sb.toString())){
+              
+               int tableCont=result.getInt("count");
+            
+               return tableCont;
+        }catch(SQLException e){ 
+                e.printStackTrace();
+                return -1;}
+    
+    
+    }
+    public  boolean createViewForSongs(){
+        
+        try(Statement statement=conn.createStatement()){
+            statement.execute(CREATR_VIEW_SONGS);
+        
+            return true;
+        }
+        catch(SQLException e){
+            e.printStackTrace();
+            return false;}
+    
+    }
+    public  void queryViewForSongs(){
+        StringBuilder sb=new StringBuilder();
+        sb.append("select * from "+TABLE_SONG_VIEW);
+        try(Statement statement=conn.createStatement();ResultSet result=statement.executeQuery(sb.toString())){
+                while(result.next()){
+                System.out.println(result.getString(1));}
+        }catch(SQLException e){
+                e.printStackTrace();}
+    }
+    public  void getSongInfo(String song){
+     
+        
+        try{
+            querySongInfo.setString(1,song);
+            ResultSet result=querySongInfo.executeQuery();
+            
+            while(result.next()){
+                System.out.println(result.getString(1)+" "+result.getString(2));}
+            
+        }catch(SQLException e){
+            System.out.println("That song dosent exist");}
+        
+        
+    }}
         
     
 

@@ -23,10 +23,12 @@ public class MusicSQL {
             System.out.println("Cant Open Datasource!");
             return;}
         
-        dataSource.querySongsMetadate();
+      //  dataSource.querySongsMetadate();
+        //System.out.println(dataSource.getCount("songs"));
+       // dataSource.createViewForSongs();
+      //  dataSource.queryViewForSongs();
         
-        
-        
+      dataSource.getSongInfo("Shock Wave");
         dataSource.close();
         
     }
