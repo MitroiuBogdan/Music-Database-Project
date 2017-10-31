@@ -5,6 +5,7 @@
  */
 package musicsql;
 
+import java.sql.SQLException;
 import java.util.List;
 import musicsql.model.Artist;
 import musicsql.model.Datasource;
@@ -16,7 +17,7 @@ import musicsql.model.Datasource;
 public class MusicSQL {
 
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         
         Datasource dataSource=new Datasource();
         if(!dataSource.open()){
@@ -25,10 +26,10 @@ public class MusicSQL {
         
       //  dataSource.querySongsMetadate();
         //System.out.println(dataSource.getCount("songs"));
-       // dataSource.createViewForSongs();
-      //  dataSource.queryViewForSongs();
-        
-      dataSource.getSongInfo("Shock Wave");
+  
+     dataSource.insertSongs("Haleluia","NikiMinaj","The PinkPrint",4);
+     
+     // dataSource.getSongInfo("Shock Wave");
         dataSource.close();
         
     }
